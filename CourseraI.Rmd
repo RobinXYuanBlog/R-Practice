@@ -1,0 +1,104 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# Coursera Practise I
+
+## Import required libraries
+
+```{r load-packages, message = FALSE}
+library(dplyr)
+library(tidyr)
+library(readr)
+library(readxl)
+library(lubridate)
+library(ggplot2)
+```
+
+## Import Dataset and view first lines
+
+```{r load data, results='hide'}
+pm2_5 <- read_csv("./daily_SPEC_2014.csv.bz2")
+```
+
+## View data
+Then, I'd like to view the `pm2_5` data
+```{r view pm2_5}
+head(pm2_5)
+```
+
+## Question I
+What is average Sample.Value for "Bromine PM2.5 LC" in the state of Wisconsin in this dataset?
+
+```{r average sample value}
+Q1 <- pm2_5 %>% 
+  group_by(`State Code`) %>% 
+  filter(`Parameter Name` == "Bromine PM2.5 LC", `State Name` == "Wisconsin") %>% 
+  summarise( average = mean(`Arithmetic Mean`, na.rm = TRUE))
+```
+
+Then, we could have a view on Q1 data
+
+```{r view Q1}
+head(Q1)
+```
+
+## Question II
+Calculate the average of each chemical constituent across all states, monitoring sites and all time points.
+
+```{r average}
+Q2 <- pm2_5 %>% 
+  group_by(`Parameter Name`, `State Name`, `Site Num`, `Date Local`) %>%  # Group data with these columns
+  filter(grepl("LC", `Parameter Name`)) %>%                               # Find out all `Parameter Name` 
+                                                                          # contains LC
+  summarise( total_average = mean(`Arithmetic Mean`) ) %>%                # Create a column called total_average 
+                                                                          #and store mean values into it
+  arrange(desc(total_average))                                            # Arrange the dataset in descending order
+```
+
+Then, I would like to view the first lines of Q2
+
+```{r view Q2}
+head(Q2)
+```
+
+For better observing the result, I would like to plot the results out.
+
+```{r plot Q2}
+Q2_subtable <- Q2 %>%
+  filter(grepl("^W", `State Name`))                 # Make a subset of Q2 by all the states start with `W`
+ggplot(Q2_subtable, aes(x = `State Name`, y = total_average)) + 
+  geom_bar(stat = "identity", colour = "red")       # Bar chart
+```
+
+## Question III
+Which monitoring site has the highest average level of "Sulfate PM2.5 LC" across all time?
+
+```
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,106 @@
+---
+title: "My Practise I"
+output: html_notebook
+---
+
+# Introduction
+This file is mainly for practising how to use `dplyr` and `tidyr` package, in this practise, I would like to use the `hflights` data package.
+
+## Load Packages
+```{r load packages}
+library(hflights)
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+```
+
+## View Data
+Then, I'd like to view the `hflights` data
+
+```{r view hflights}
+head(hflights, 15)
+```
+
+Besides, I would like to know the total rows of `hflights`
+
+```{r dim hflights}
+dim(hflights)
+nrow(hflights)
+```
+
+So there are 227496 data rows in the hflight.
+
+For a better showing, the function tbl_df() could also be used.
+
+```{r tbl_df}
+tbl_hflights <- tbl_df(hflights)
+```
+
+## Practise I
+
+Firstly, I would like to select the data of `FlightNum` equals to 428.
+
+```{r filter}
+flight_428 <- hflights %>%
+  select(Year, Month, DayofMonth, FlightNum, Distance, Cancelled) %>%
+  filter(FlightNum == 428)
+```
+
+Now, we could have a look at the `flight_428`
+
+```{r view flight_428}
+head(flight_428, 20)
+dim(flight_428)
+```
+
+```{r plot flight_428}
+ggplot(flight_428, aes(x = flight_428$Month, y = flight_428$Distance)) +
+  geom_histogram(stat = "identity", fill = "red", alpha = 0.5) +
+  labs(x = "Month", y = "Distance", title = "Fly Distance in Different Months of Flight 428") + 
+  scale_x_continuous(breaks = seq(1, 12, 1))
+```
+
+From the graph, Janurary is the busiest month of Flight 428. Then, I would like to do a comparison.
+
+```{r flight analysis}
+flight_analysis <- hflights %>%
+  select(Year, Month, DayofMonth, FlightNum, Distance) %>%
+  group_by(Month) %>%
+  summarise(month_total = n()) %>%
+  mutate(month_total = month_total - 5254)                    # The original point start from 5254
+```
+
+```{r head flight_analysis}
+head(flight_analysis)
+```
+
+Then, I would like to plot out the results, and observe the total flight numbers of each month
+
+```{r plot flight_analysis}
+ggplot(flight_analysis, aes(x = flight_analysis$Month, y = flight_analysis$month_total)) +
+  geom_histogram(fill = "red", alpha = 0.5, stat = "identity") +
+  geom_point(colour = "blue", alpha = 0.5, size = 2, y = flight_analysis$month_total / 2) +
+  geom_line(colour = "blue", alpha = 0.5, size = 1, y = flight_analysis$month_total / 2) + 
+  labs(x = "Month", y = "Month Total Flights") + 
+  scale_x_continuous(breaks = seq(1, 12, 1)) +
+  geom_text(aes(label = flight_analysis$month_total, vjust = 0.5, hjust = 3, angle = 90), show_guide = FALSE)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
