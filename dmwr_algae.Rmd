@@ -1,0 +1,122 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+## Data Mining with R
+
+### Example I -- Algae
+
+#### Data Description
+
+This data set was collected in the context of the ERU- DIT1 research Network and used in the COIL 1999 international data analysis competition.
+
+There are two main datasets for this problem. The first consists of data for 200 water samples. To be more precise, each observation in the available datasets is in effect an aggregation of several water samples collected from the same river over a period of 3 months, during the same season of the year.
+
+Each observation contains information on 11 variables. Three of these vari- ables are nominal and describe the season of the year when the water samples to be aggregated were collected, as well as the size and speed of the river in question. The eight remaining variables are values of different chemical parameters measured in the water samples forming the aggregation, namely:
+
+• Maximum pH value
+• Minimum value of O2 (oxygen)
+• Mean value of Cl (chloride)
+• Mean value of NO^(−3) (nitrates)
+• Mean value of NH^+_4 (ammonium)
+• Mean of PO_4^(3−) (orthophosphate)
+• Mean of total PO_4 (phosphate)
+• Mean of chlorophyll
+
+The second dataset contains information on 140 extra observations. It uses the same basic structure but it does not include information concerning the seven harmful algae frequencies. These extra observations can be regarded as a kind of test set.
+
+The main goal of our study is to predict the frequencies of the seven algae for these 140 water samples.
+
+1.Load Data and relative library
+
+```{r load data}
+library('DMwR')
+library(ggplot2)
+library(car)
+```
+
+2.View data set algae
+
+```{r view data}
+head(algae)
+```
+3.Get a summary of the dataset
+
+```{r summary}
+summary(algae)
+```
+
+By observing the difference between medians and means, as well as the inter-quartile range (3rd quartile minus the 1st quartile),8 we can get an idea of the skewness of the distribution and also its spread. Still, most of the time, this information is better captured graphically.
+
+4.Hist plot
+
+```{r hist plot}
+hist(algae$mxPH, probability = TRUE)
+```
+5.qqplot
+
+```{r qqplot}
+par(mfrow = c(1,2))
+hist(algae$mxPH, probability = TRUE, xlab = '',
+     main = 'Histogram of maximum pH value', ylim = 0:1)
+lines(density(algae$mxPH, na.rm = TRUE))
+rug(jitter(algae$mxPH))
+qqPlot(algae$mxPH, main = 'Normal Q-Q plot of maximum pH')
+par(mfrow = c(1,1))
+```
+
+*par()* function could be used to set several parameters of the R graphics system. We divided the graphics output into a one line per two columns area.
+
+The second graph shows a Q-Q plot obtained with the qqPlot() function, which plots the variable values against the theoretical quantiles of a normal distribution (solid black line). The func- tion also plots an envelope with the 95% confidence interval of the normal distribution (dashed lines). As we can observe, there are several low values of the variable that clearly break the assumptions of a normal distribution with 95% confidence.
+
+#### Boxplot of oPO4
+
+```{r boxplot}
+boxplot(algae$oPO4, ylab = "Orthophosphate (oPO4)")
+rug(jitter(algae$oPO4), side = 2)
+abline(h = mean(algae$oPO4, na.rm = TRUE), lty = 2)
+```
+
+Box plots provide a quick summarization of some key properties of the variable distribution. Namely, there is a box whose vertical limits are the 1st and 3rd quartiles of the variable. This box has a horizontal line inside that represents the median value of the variable. Let r be the inter-quartile range. The small horizontal dash above the box is the largest observation that is less than or equal to the 3rd quartile plus 1.5 × r. The small horizontal dash below the box is the smallest observation that is greater than or equal to the 1st quartile minus 1.5 × r. The circles below or above these small dashes represent observations that are extremely low (high) compared to all others, and are usually considered outliers. This means that box plots give us plenty of information regarding not only the central value and spread of the variable, but also eventual outliers.
+
+the function abline() to draw a horizontal line at the mean value of the variable, which is obtained using the function mean().
+
+By comparing this line with the line inside the box indicating the median, we can conclude that the presence of several outliers has distorted the value of the mean as a statistic of centralit
+
+```{r}
+plot(algae$NH4, xlab = "")
+abline(h = mean(algae$NH4, na.rm = TRUE), lty = 1)
+abline(h = mean(algae$NH4, na.rm = TRUE) + sd(algae$NH4, na.rm = TRUE), lty = 2)
+abline(h = median(algae$NH4, na.rm = TRUE), lty = 3)
+identify(algae$NH4)
+```
+
+The first instruction plots all values of the variable. The calls to the abline() function draw three informative lines, one with the mean value, another with the mean plus one standard deviation, and the other with the median. They are not necessary for this identification task. The last instruc- tion is interactive and allows the user to click on the plotted dots with the left mouse button. For every clicked dot, R will write the respective row number in the algae data frame. The user can finish the interaction by clicking the right mouse button.
+
+Or we could inspect the respective observations in the *algae* data frame with following way:
+
+```{r}
+plot(algae$NH4, xlab = "")
+clicked.lines <- identify(algae$NH4)
+algae[clicked.lines]
+```
+Or we could inspect the data frame in following way
+
+```{r view algae}
+algae[algae$NH4 > 19000, ]
+```
+
+The above results contain the NA values, we could avoid that as follow:
+
+```{r view algae no na}
+algae[!is.na(algae$NH4) & algae$NH4 > 19000, ]
+```
+
+
+
+
+
+
+
+
